@@ -24,3 +24,41 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Custom Scrollbar Styles - Show on hover */
+.scrollbar-hover {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s ease;
+}
+
+.scrollbar-hover:hover {
+  scrollbar-color: #9CA3AF #F3F4F6;
+}
+
+.scrollbar-hover::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.scrollbar-hover::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.scrollbar-hover:hover::-webkit-scrollbar-track {
+  background: #F3F4F6;
+}
+
+.scrollbar-hover::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.scrollbar-hover:hover::-webkit-scrollbar-thumb {
+  background: #9CA3AF;
+}
+
+.scrollbar-hover:hover::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
+}

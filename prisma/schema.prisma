@@ -1,0 +1,105 @@
+// Prisma Schema for Control Room DG Operations System
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// User model with simplified role-based access
+model User {
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  phoneNumber   String     @unique
+  password      String
+  phoneVerified Boolean    @default(true)
+  role          Role
+  name          String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  activities    Activity[]
+  sessions      Session[]
+
+  @@map("users")
+}
+
+enum Role {
+  TA
+  EOD
+  AE
+}
+
+// Activity tracking for audit trail
+model Activity {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  action    String
+  module    String
+  details   String?
+  timestamp DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activities")
+}
+
+// DG Operations data - Multiple entries can exist for the same date
+model DGOperation {
+  id    String   @id @default(auto()) @map("_id") @db.ObjectId
+  date  DateTime
+  shift String
+
+  eodInShift     String?
+  testingHrsFrom String?
+  testingHrsTo   String?
+
+  testingProgressiveHrs Float?
+  loadHrsFrom           String?
+  loadHrsTo             String?
+  loadProgressiveHrs    Float?
+  hrsMeterReading       Float?
+
+  oilLevelInDieselTank Float?
+  lubeOilLevelInEngine Float?
+  oilStockInStore      Float?
+  lubeOilStockInStore  Float?
+  oilFilledInLiters    Float?
+
+  batteryCondition String?
+  oilPressure      Float?
+  oilTemperature   Float?
+
+  onDutyStaff String?
+
+  digitalSignatureDutyStaff String?
+  dutyStaffId               String   @db.ObjectId
+  dutyStaffSignedAt         DateTime @default(now())
+
+  digitalSignatureEodAe String?
+  signedBy              String?   @db.ObjectId
+  signedAt              DateTime?
+
+  remarks String?
+
+  createdBy String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date, shift])
+  @@index([createdAt])
+  @@map("dg_operations")
+}
+
+// Session management
+model Session {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}

@@ -1,0 +1,153 @@
+// DG Operations API Routes
+import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
+import { dgOperationCreateSchema } from "@/lib/schemas"
+import { cookies } from "next/headers"
+
+// Helper function to get current user from session
+async function getCurrentUser(req: NextRequest) {
+  const cookieStore = await cookies()
+  const sessionToken = cookieStore.get("session")?.value
+  
+  if (!sessionToken) {
+    return null
+  }
+  
+  const session = await prisma.session.findUnique({
+    where: { token: sessionToken },
+    include: { user: true },
+  })
+  
+  if (!session || session.expiresAt < new Date()) {
+    return null
+  }
+  
+  return session.user
+}
+
+// GET - Fetch all DG operations with filters
+export async function GET(req: NextRequest) {
+  try {
+    const user = await getCurrentUser(req)
+    
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    
+    const { searchParams } = new URL(req.url)
+    const date = searchParams.get("date")
+    const shift = searchParams.get("shift")
+    const startDate = searchParams.get("startDate")
+    const endDate = searchParams.get("endDate")
+    
+    const where: any = {}
+    
+    // Filter by specific date
+    if (date) {
+      const startOfDay = new Date(date)
+      startOfDay.setHours(0, 0, 0, 0)
+      const endOfDay = new Date(date)
+      endOfDay.setHours(23, 59, 59, 999)
+      
+      where.date = {
+        gte: startOfDay,
+        lte: endOfDay,
+      }
+    }
+    
+    // Filter by date range
+    if (startDate && endDate) {
+      where.date = {
+        gte: new Date(startDate),
+        lte: new Date(endDate),
+      }
+    }
+    
+    // Filter by shift
+    if (shift) {
+      where.shift = shift
+    }
+    
+    // Fetch all operations (no limit on duplicates)
+    const operations = await prisma.dGOperation.findMany({
+      where,
+      orderBy: [
+        { date: "desc" },
+        { createdAt: "desc" }, // Show newest first within same day
+      ],
+    })
+    
+    // Log activity
+    await prisma.activity.create({
+      data: {
+        userId: user.id,
+        action: "VIEW",
+        module: "DG_OPERATIONS",
+        details: `Viewed ${operations.length} records`,
+      },
+    })
+    
+    return NextResponse.json({ data: operations })
+  } catch (error) {
+    console.error("API Error:", error)
+    return NextResponse.json(
+      { error: "Failed to fetch records" },
+      { status: 500 }
+    )
+  }
+}
+
+// POST - Create new DG operation entry
+export async function POST(req: NextRequest) {
+  try {
+    const user = await getCurrentUser(req)
+    
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    
+    const body = await req.json()
+    
+    // Validate input
+    const validatedData = dgOperationCreateSchema.parse(body)
+    
+    // NO checking for existing entries with same date/shift
+    // Multiple entries are allowed
+    const operation = await prisma.dGOperation.create({
+      data: {
+        ...validatedData,
+        createdBy: user.id,
+        digitalSignatureDutyStaff: user.name,
+        dutyStaffId: user.id,
+        dutyStaffSignedAt: new Date(),
+        digitalSignatureEodAe: null,
+        signedBy: null,
+        signedAt: null,
+      },
+    })
+    
+    // Log activity
+    await prisma.activity.create({
+      data: {
+        userId: user.id,
+        action: "CREATE",
+        module: "DG_OPERATIONS",
+        details: `Created entry #${operation.id} for ${validatedData.date} - ${validatedData.shift}`,
+      },
+    })
+    
+    return NextResponse.json({ success: true, data: operation })
+  } catch (error) {
+    console.error("API Error:", error)
+    if (error instanceof Error && error.name === "ZodError") {
+      return NextResponse.json(
+        { error: "Invalid input data" },
+        { status: 400 }
+      )
+    }
+    return NextResponse.json(
+      { error: "Failed to create entry" },
+      { status: 500 }
+    )
+  }
+}
