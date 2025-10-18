@@ -1,7 +1,7 @@
 // DG Operations Records Page
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "@/components/session-provider"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -36,6 +36,7 @@ export default function RecordsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [filterDate, setFilterDate] = useState("")
   const [filterShift, setFilterShift] = useState("")
+  const [signingRecordId, setSigningRecordId] = useState<string | null>(null)
 
   useEffect(() => {
     if (user) {
@@ -43,9 +44,26 @@ export default function RecordsPage() {
     }
   }, [user])
 
+  const applyFilters = useCallback(() => {
+    let filtered = [...records]
+
+    if (filterDate) {
+      filtered = filtered.filter(record => {
+        const recordDate = new Date(record.date).toISOString().split('T')[0]
+        return recordDate === filterDate
+      })
+    }
+
+    if (filterShift) {
+      filtered = filtered.filter(record => record.shift === filterShift)
+    }
+
+    setFilteredRecords(filtered)
+  }, [records, filterDate, filterShift])
+
   useEffect(() => {
     applyFilters()
-  }, [records, filterDate, filterShift])
+  }, [applyFilters])
 
   const fetchRecords = async () => {
     try {
@@ -61,28 +79,13 @@ export default function RecordsPage() {
     }
   }
 
-  const applyFilters = () => {
-    let filtered = [...records]
-
-    if (filterDate) {
-      filtered = filtered.filter(record => {
-        const recordDate = new Date(record.date).toISOString().split('T')[0]
-        return recordDate === filterDate
-      })
-    }
-
-    if (filterShift) {
-      filtered = filtered.filter(record => record.shift === filterShift)
-    }
-
-    setFilteredRecords(filtered)
-  }
-
   const handleSignature = async (recordId: string) => {
     if (!user || (user.role !== "EOD" && user.role !== "AE")) {
       toast.error("Only EOD and AE can sign entries")
       return
     }
+
+    setSigningRecordId(recordId)
 
     try {
       const res = await fetch(`/api/dg-operations/${recordId}/signature`, {
@@ -98,6 +101,8 @@ export default function RecordsPage() {
       fetchRecords()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to sign entry")
+    } finally {
+      setSigningRecordId(null)
     }
   }
 
@@ -304,8 +309,9 @@ export default function RecordsPage() {
                                   <Button
                                     size="sm"
                                     onClick={() => handleSignature(record.id)}
+                                    disabled={signingRecordId === record.id}
                                   >
-                                    Sign
+                                    {signingRecordId === record.id ? "Signing..." : "Sign"}
                                   </Button>
                                 )}
                               </div>

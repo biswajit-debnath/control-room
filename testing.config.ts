@@ -19,6 +19,9 @@ export const testingConfig = {
   
   // Reduce delays/timeouts for faster testing
   reducedDelays: true,
+
+  // Enable date time change in entry forms for testing
+  enableDateTimeChange: true,
 } as const
 
 // Helper function to check if testing features are enabled

@@ -32,6 +32,12 @@ async function main() {
       name: "TA Staff",
       role: "TA",
     },
+    {
+      phoneNumber: "1234567890",
+      password: "password123",
+      name: "Biswajit Debnath",
+      role: "EOD",
+    },
   ]
 
   for (const userData of users) {

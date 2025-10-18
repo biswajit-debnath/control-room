@@ -49,6 +49,7 @@ export default function DGOperationsDetailPage() {
   const [records, setRecords] = useState<DGOperation[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [signingRecordId, setSigningRecordId] = useState<string | null>(null)
 
   useEffect(() => {
     if (user && dateParam) {
@@ -79,6 +80,8 @@ export default function DGOperationsDetailPage() {
       return
     }
 
+    setSigningRecordId(recordId)
+
     try {
       const res = await fetch(`/api/dg-operations/${recordId}/signature`, {
         method: "PATCH",
@@ -95,6 +98,8 @@ export default function DGOperationsDetailPage() {
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to sign entry")
+    } finally {
+      setSigningRecordId(null)
     }
   }
 
@@ -181,6 +186,7 @@ export default function DGOperationsDetailPage() {
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-300">
                 <tr>
                   <th className="px-4 py-3 text-left font-semibold whitespace-nowrap sticky left-0 bg-gradient-to-r from-gray-50 to-gray-100 z-10 shadow-sm">Shift</th>
+                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Time</th>
                   <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">EOD in Shift</th>
                   <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Testing Hr From</th>
                   <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Testing Hr To</th>
@@ -197,7 +203,6 @@ export default function DGOperationsDetailPage() {
                   <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Battery Condition</th>
                   <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Oil Pressure</th>
                   <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Oil Temperature</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Exc</th>
                   <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">On Duty Staff</th>
                   <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Digital Signature of on duty staff</th>
                   <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Remarks</th>
@@ -208,6 +213,7 @@ export default function DGOperationsDetailPage() {
                 {shiftRecords.map((record, index) => (
                   <tr key={record.id} className={index % 2 === 0 ? "bg-white hover:bg-blue-50" : "bg-gray-50 hover:bg-blue-100"}>
                     <td className="px-4 py-3 border-b font-medium sticky left-0 bg-inherit z-10 shadow-sm">{shift}</td>
+                    <td className="px-4 py-3 border-b whitespace-nowrap">{formatTime(record.date)}</td>
                     <td className="px-4 py-3 border-b whitespace-nowrap">{record.eodInShift || "-"}</td>
                     <td className="px-4 py-3 border-b whitespace-nowrap">{formatTimeTo12Hour(record.testingHrsFrom)}</td>
                     <td className="px-4 py-3 border-b whitespace-nowrap">{formatTimeTo12Hour(record.testingHrsTo)}</td>
@@ -224,7 +230,6 @@ export default function DGOperationsDetailPage() {
                     <td className="px-4 py-3 border-b whitespace-nowrap">{record.batteryCondition || "-"}</td>
                     <td className="px-4 py-3 border-b whitespace-nowrap">{record.oilPressure || "-"}</td>
                     <td className="px-4 py-3 border-b whitespace-nowrap">{record.oilTemperature || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">-</td>
                     <td className="px-4 py-3 border-b whitespace-nowrap">{record.onDutyStaff || "-"}</td>
                     <td className="px-4 py-3 border-b whitespace-nowrap">
                       <div className="flex items-center gap-2">
@@ -247,8 +252,9 @@ export default function DGOperationsDetailPage() {
                         <Button
                           size="sm"
                           onClick={() => handleSignature(record.id)}
+                          disabled={signingRecordId === record.id}
                         >
-                          Sign
+                          {signingRecordId === record.id ? "Signing..." : "Sign"}
                         </Button>
                       ) : (
                         // Not signed and user has no permission - Show pending badge

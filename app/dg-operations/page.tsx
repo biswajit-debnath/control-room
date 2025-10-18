@@ -102,16 +102,16 @@ export default function DGOperationsPage() {
         
         setFormData(prev => ({
           ...prev,
-          testingHrsFrom: '08:30',
-          testingHrsTo: '09:30',
-          testingProgressiveHrs: '1.5',
-          loadHrsFrom: '10:00',
-          loadHrsTo: '14:30',
-          loadProgressiveHrs: '500',
-          hrsMeterReading: '12500',
+          testingHrsFrom: '08:00',
+          testingHrsTo: '10:30',
+          testingProgressiveHrs: '2.5',
+          loadHrsFrom: '08:00',
+          loadHrsTo: '10:30',
+          loadProgressiveHrs: '2.5',
+          hrsMeterReading: '2',
           oilLevelInDieselTank: '750',
           lubeOilLevelInEngine: '15',
-          oilStockInStore: '5000',
+          oilStockInStore: '500',
           lubeOilStockInStore: '200',
           oilFilledInLiters: '100',
           batteryCondition: 'Good',
@@ -266,7 +266,7 @@ export default function DGOperationsPage() {
                   value={formData.date}
                   onChange={handleChange}
                   required
-                  disabled={true}
+                  disabled={!(isTestingEnabled() && testingConfig.enableDateTimeChange)}
                 />
               </div>
               <div>
