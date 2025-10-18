@@ -77,7 +77,7 @@ Problems:
 
 Benefits:
   ✅ Update navigation in ONE place
-  ✅ Update styling in ONE place  
+  ✅ Update styling in ONE place
   ✅ Bug fixes applied ONCE
   ✅ New features implemented ONCE
   ✅ ~240 total lines (120 lines saved)
@@ -87,6 +87,7 @@ Benefits:
 ## Example: Adding a New Navigation Item
 
 ### BEFORE (Duplicated Approach) ❌
+
 ```tsx
 // File 1: /app/dashboard/layout.tsx
 // Add to mobile menu (lines 115-125)
@@ -95,16 +96,18 @@ Benefits:
 // Add to desktop nav (lines 165-175)
 <Link href="/new-module">New Module</Link>
 
-// File 2: /app/public/layout.tsx  
+// File 2: /app/public/layout.tsx
 // Add to mobile menu (lines 115-125) - DUPLICATE!
 <Link href="/public/new-module">New Module</Link>
 
 // Add to desktop nav (lines 165-175) - DUPLICATE!
 <Link href="/public/new-module">New Module</Link>
 ```
+
 **Result:** 4 edits across 2 files 😫
 
 ### AFTER (Shared Component) ✅
+
 ```tsx
 // File: /components/app-layout.tsx
 // Add to mobile menu (lines 140-150)
@@ -113,9 +116,11 @@ Benefits:
 // Add to desktop nav (lines 190-200)
 <Link href={`${basePath}/new-module`}>New Module</Link>
 ```
+
 **Result:** 2 edits in 1 file 🎉
 
 The component automatically:
+
 - Uses `/new-module` for authenticated users
 - Uses `/public/new-module` for public users
 - Shows login button to public users
@@ -123,30 +128,31 @@ The component automatically:
 
 ## Maintenance Comparison
 
-| Task | Before (Duplicated) | After (Shared) |
-|------|---------------------|----------------|
-| Add navigation item | Edit 2 files | Edit 1 file |
-| Update header styling | Edit 2 files | Edit 1 file |
-| Fix mobile menu bug | Edit 2 files | Edit 1 file |
-| Change layout width | Edit 2 files | Edit 1 file |
-| Add new icon | Edit 2 files | Edit 1 file |
-| Update responsive breakpoints | Edit 2 files | Edit 1 file |
+| Task                          | Before (Duplicated) | After (Shared) |
+| ----------------------------- | ------------------- | -------------- |
+| Add navigation item           | Edit 2 files        | Edit 1 file    |
+| Update header styling         | Edit 2 files        | Edit 1 file    |
+| Fix mobile menu bug           | Edit 2 files        | Edit 1 file    |
+| Change layout width           | Edit 2 files        | Edit 1 file    |
+| Add new icon                  | Edit 2 files        | Edit 1 file    |
+| Update responsive breakpoints | Edit 2 files        | Edit 1 file    |
 
 ## Code Metrics
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Total lines of code | ~360 | ~240 | 33% reduction |
-| Files to maintain | 2 layouts | 1 component + 2 wrappers | Better organization |
-| Code duplication | ~95% | 0% | Eliminated |
-| Prop-based configuration | No | Yes | More flexible |
-| Type safety | Basic | Enhanced | Props enforce correct usage |
+| Metric                   | Before    | After                    | Improvement                 |
+| ------------------------ | --------- | ------------------------ | --------------------------- |
+| Total lines of code      | ~360      | ~240                     | 33% reduction               |
+| Files to maintain        | 2 layouts | 1 component + 2 wrappers | Better organization         |
+| Code duplication         | ~95%      | 0%                       | Eliminated                  |
+| Prop-based configuration | No        | Yes                      | More flexible               |
+| Type safety              | Basic     | Enhanced                 | Props enforce correct usage |
 
 ## Real-World Scenario
 
 **Requirement:** "Add a search icon to the header"
 
 ### Before (Duplicated):
+
 1. Open `/app/dashboard/layout.tsx`
 2. Add search icon component
 3. Add state management
@@ -159,6 +165,7 @@ The component automatically:
 **Risk:** Forgetting to update one file, inconsistent styling
 
 ### After (Shared):
+
 1. Open `/components/app-layout.tsx`
 2. Add search icon component
 3. Add state management (shared)
@@ -176,18 +183,19 @@ Need a third view type? Easy:
 // app/admin/layout.tsx
 export default function AdminLayout({ children }) {
   return (
-    <AppLayout 
-      requireAuth={true} 
+    <AppLayout
+      requireAuth={true}
       isPublicView={false}
       // Future: isAdminView={true}
     >
       {children}
     </AppLayout>
-  )
+  );
 }
 ```
 
 The shared component can grow to support:
+
 - Admin view with special permissions
 - Operator view with different navigation
 - Mobile app view with compact header
@@ -198,6 +206,7 @@ All without duplicating the core layout logic!
 ## Conclusion
 
 The refactoring from duplicated layouts to a shared component provides:
+
 - **Better Maintainability:** Update once, apply everywhere
 - **Reduced Code:** 33% less code to maintain
 - **Consistency:** Guaranteed UI consistency across views
