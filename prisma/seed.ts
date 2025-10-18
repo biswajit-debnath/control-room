@@ -17,7 +17,7 @@ async function main() {
     {
       phoneNumber: "9999999999",
       password: "password123",
-      name: "Admin User",
+      name: "Kaustabh Das",
       role: "AE",
     },
     {
@@ -29,7 +29,7 @@ async function main() {
     {
       phoneNumber: "7777777777",
       password: "password123",
-      name: "TA Staff",
+      name: "Gurjyot Sandhu",
       role: "TA",
     },
     {

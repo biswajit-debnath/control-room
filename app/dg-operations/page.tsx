@@ -227,22 +227,24 @@ export default function DGOperationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900">DG Operations</h2>
-          <p className="text-gray-500 mt-1">Create new operation entry</p>
+      <div className="space-y-4">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+          <div>
+            <h2 className="text-xl md:text-3xl font-bold text-gray-900">DG Operations</h2>
+            <p className="text-sm md:text-base text-gray-500 mt-1">Create new operation entry</p>
+          </div>
+          <Link href="/dg-operations/records">
+            <Button variant="outline" className="w-full md:w-auto text-xs md:text-sm">
+              <FileText className="h-4 w-4 mr-2" />
+              View All Records
+            </Button>
+          </Link>
         </div>
-        <Link href="/dg-operations/records">
-          <Button variant="outline">
-            <FileText className="h-4 w-4 mr-2" />
-            View All Records
-          </Button>
-        </Link>
       </div>
 
       <Card className="bg-blue-50 border-blue-200">
-        <CardContent className="pt-6">
-          <p className="text-sm text-blue-800">
+        <CardContent className="pt-4 md:pt-6">
+          <p className="text-xs md:text-sm text-blue-800">
             ℹ️ You can submit multiple entries for the same day and shift. 
             Each submission creates a new record. The form will reset after successful submission.
           </p>
@@ -252,13 +254,13 @@ export default function DGOperationsPage() {
       <form onSubmit={handleSubmit}>
         <Card>
           <CardHeader>
-            <CardTitle>Entry Details</CardTitle>
+            <CardTitle className="text-base md:text-lg">Entry Details</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 md:space-y-6">
             {/* Row 1: Date & Shift */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
               <div className="md:col-span-2">
-                <Label htmlFor="date">Date & Time *</Label>
+                <Label htmlFor="date" className="text-xs md:text-sm">Date & Time *</Label>
                 <Input
                   id="date"
                   name="date"
@@ -267,16 +269,18 @@ export default function DGOperationsPage() {
                   onChange={handleChange}
                   required
                   disabled={!(isTestingEnabled() && testingConfig.enableDateTimeChange)}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="shift">Shift *</Label>
+                <Label htmlFor="shift" className="text-xs md:text-sm">Shift *</Label>
                 <Select
                   id="shift"
                   name="shift"
                   value={formData.shift}
                   onChange={handleChange}
                   required
+                  className="text-xs md:text-sm"
                 >
                   <option value="">Select Shift</option>
                   <option value="M/s">M/s</option>
@@ -285,14 +289,14 @@ export default function DGOperationsPage() {
                 </Select>
               </div>
               <div className={showCustomEod ? "md:col-span-2" : ""}>
-                <Label htmlFor="eodInShift">EOD in Shift</Label>
-                <div className="flex gap-2">
+                <Label htmlFor="eodInShift" className="text-xs md:text-sm">EOD in Shift</Label>
+                <div className="flex flex-col md:flex-row gap-2">
                   <Select
                     id="eodInShift"
                     name="eodInShift"
                     value={formData.eodInShift}
                     onChange={handleChange}
-                    className={showCustomEod ? "flex-1" : ""}
+                    className={`text-xs md:text-sm ${showCustomEod ? "md:flex-1" : ""}`}
                   >
                     <option value="">Select EOD</option>
                     {eodUsers.map((eod) => (
@@ -310,37 +314,39 @@ export default function DGOperationsPage() {
                       placeholder="Enter EOD name"
                       value={formData.customEod}
                       onChange={handleChange}
-                      className="flex-1"
+                      className="text-xs md:text-sm md:flex-1"
                     />
                   )}
                 </div>
               </div>
               <div>
-                <Label htmlFor="testingHrsFrom">Testing Hrs From</Label>
+                <Label htmlFor="testingHrsFrom" className="text-xs md:text-sm">Testing Hrs From</Label>
                 <Input
                   id="testingHrsFrom"
                   name="testingHrsFrom"
                   type="time"
                   value={formData.testingHrsFrom}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
             </div>
 
             {/* Row 2: Testing & Load Hours */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
               <div>
-                <Label htmlFor="testingHrsTo">Testing Hrs To</Label>
+                <Label htmlFor="testingHrsTo" className="text-xs md:text-sm">Testing Hrs To</Label>
                 <Input
                   id="testingHrsTo"
                   name="testingHrsTo"
                   type="time"
                   value={formData.testingHrsTo}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="testingProgressiveHrs">Testing Progressive Hrs</Label>
+                <Label htmlFor="testingProgressiveHrs" className="text-xs md:text-sm">Test Prog. Hrs</Label>
                 <Input
                   id="testingProgressiveHrs"
                   name="testingProgressiveHrs"
@@ -348,30 +354,33 @@ export default function DGOperationsPage() {
                   step="0.01"
                   value={formData.testingProgressiveHrs}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="loadHrsFrom">Load Hrs From</Label>
+                <Label htmlFor="loadHrsFrom" className="text-xs md:text-sm">Load Hrs From</Label>
                 <Input
                   id="loadHrsFrom"
                   name="loadHrsFrom"
                   type="time"
                   value={formData.loadHrsFrom}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="loadHrsTo">Load Hrs To</Label>
+                <Label htmlFor="loadHrsTo" className="text-xs md:text-sm">Load Hrs To</Label>
                 <Input
                   id="loadHrsTo"
                   name="loadHrsTo"
                   type="time"
                   value={formData.loadHrsTo}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="loadProgressiveHrs">Load Progressive Hrs</Label>
+                <Label htmlFor="loadProgressiveHrs" className="text-xs md:text-sm">Load Prog. Hrs</Label>
                 <Input
                   id="loadProgressiveHrs"
                   name="loadProgressiveHrs"
@@ -379,14 +388,15 @@ export default function DGOperationsPage() {
                   step="0.01"
                   value={formData.loadProgressiveHrs}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
             </div>
 
             {/* Row 3: Meter Reading & Oil Levels */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
               <div>
-                <Label htmlFor="hrsMeterReading">Hrs Meter Reading</Label>
+                <Label htmlFor="hrsMeterReading" className="text-xs md:text-sm">Hrs Meter</Label>
                 <Input
                   id="hrsMeterReading"
                   name="hrsMeterReading"
@@ -394,10 +404,11 @@ export default function DGOperationsPage() {
                   step="0.01"
                   value={formData.hrsMeterReading}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="oilLevelInDieselTank">Oil Level in Diesel Tank</Label>
+                <Label htmlFor="oilLevelInDieselTank" className="text-xs md:text-sm">Diesel Level</Label>
                 <Input
                   id="oilLevelInDieselTank"
                   name="oilLevelInDieselTank"
@@ -405,10 +416,11 @@ export default function DGOperationsPage() {
                   step="0.01"
                   value={formData.oilLevelInDieselTank}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="lubeOilLevelInEngine">Lube Oil Level in Engine</Label>
+                <Label htmlFor="lubeOilLevelInEngine" className="text-xs md:text-sm">Lube Level</Label>
                 <Input
                   id="lubeOilLevelInEngine"
                   name="lubeOilLevelInEngine"
@@ -416,10 +428,11 @@ export default function DGOperationsPage() {
                   step="0.01"
                   value={formData.lubeOilLevelInEngine}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="oilStockInStore">Oil Stock in Store</Label>
+                <Label htmlFor="oilStockInStore" className="text-xs md:text-sm">Oil Stock</Label>
                 <Input
                   id="oilStockInStore"
                   name="oilStockInStore"
@@ -427,10 +440,11 @@ export default function DGOperationsPage() {
                   step="0.01"
                   value={formData.oilStockInStore}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="lubeOilStockInStore">Lube Oil Stock in Store</Label>
+                <Label htmlFor="lubeOilStockInStore" className="text-xs md:text-sm">Lube Stock</Label>
                 <Input
                   id="lubeOilStockInStore"
                   name="lubeOilStockInStore"
@@ -438,14 +452,15 @@ export default function DGOperationsPage() {
                   step="0.01"
                   value={formData.lubeOilStockInStore}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
             </div>
 
             {/* Row 4: Oil Filled, Battery, Pressure & Temperature */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
               <div>
-                <Label htmlFor="oilFilledInLiters">Oil Filled (Liters)</Label>
+                <Label htmlFor="oilFilledInLiters" className="text-xs md:text-sm">Oil Filled (L)</Label>
                 <Input
                   id="oilFilledInLiters"
                   name="oilFilledInLiters"
@@ -453,20 +468,22 @@ export default function DGOperationsPage() {
                   step="0.01"
                   value={formData.oilFilledInLiters}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="batteryCondition">Battery Condition</Label>
+                <Label htmlFor="batteryCondition" className="text-xs md:text-sm">Battery</Label>
                 <Input
                   id="batteryCondition"
                   name="batteryCondition"
                   type="text"
                   value={formData.batteryCondition}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="oilPressure">Oil Pressure</Label>
+                <Label htmlFor="oilPressure" className="text-xs md:text-sm">Pressure</Label>
                 <Input
                   id="oilPressure"
                   name="oilPressure"
@@ -474,10 +491,11 @@ export default function DGOperationsPage() {
                   step="0.01"
                   value={formData.oilPressure}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="oilTemperature">Oil Temperature</Label>
+                <Label htmlFor="oilTemperature" className="text-xs md:text-sm">Temperature</Label>
                 <Input
                   id="oilTemperature"
                   name="oilTemperature"
@@ -485,30 +503,32 @@ export default function DGOperationsPage() {
                   step="0.01"
                   value={formData.oilTemperature}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="onDutyStaff">On Duty Staff</Label>
+                <Label htmlFor="onDutyStaff" className="text-xs md:text-sm">On Duty Staff</Label>
                 <Input
                   id="onDutyStaff"
                   name="onDutyStaff"
                   type="text"
                   value={formData.onDutyStaff}
                   onChange={handleChange}
+                  className="text-xs md:text-sm"
                 />
               </div>
             </div>
 
             {/* Row 5: Digital Signature (Auto-filled) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <div>
-                <Label htmlFor="dutyStaffSignature">Digital Signature of on Duty Staff</Label>
+                <Label htmlFor="dutyStaffSignature" className="text-xs md:text-sm">Digital Signature of on Duty Staff</Label>
                 <Input
                   id="dutyStaffSignature"
                   type="text"
                   value={user?.name || ""}
                   disabled
-                  className="bg-gray-100 cursor-not-allowed"
+                  className="bg-gray-100 cursor-not-allowed text-xs md:text-sm"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Auto-filled with your name upon submission
@@ -518,7 +538,7 @@ export default function DGOperationsPage() {
 
             {/* Remarks */}
             <div>
-              <Label htmlFor="remarks">Remarks</Label>
+              <Label htmlFor="remarks" className="text-xs md:text-sm">Remarks</Label>
               <Textarea
                 id="remarks"
                 name="remarks"
@@ -526,20 +546,21 @@ export default function DGOperationsPage() {
                 onChange={handleChange}
                 rows={3}
                 placeholder="Enter any additional remarks..."
+                className="text-xs md:text-sm"
               />
             </div>
           </CardContent>
         </Card>
 
         {/* Submit Button */}
-        <div className="flex justify-center mt-6 space-x-4">
-          <Button type="submit" size="lg" disabled={isSubmitting}>
+        <div className="flex justify-center mt-4 md:mt-6">
+          <Button type="submit" size="lg" disabled={isSubmitting} className="w-full md:w-auto text-sm md:text-base">
             <Save className="h-4 w-4 mr-2" />
             {isSubmitting ? "Submitting..." : "Submit Entry"}
           </Button>
         </div>
         
-        <p className="text-center text-sm text-gray-500 mt-4">
+        <p className="text-center text-xs md:text-sm text-gray-500 mt-3 md:mt-4">
           Form will reset after submission for next entry
         </p>
       </form>

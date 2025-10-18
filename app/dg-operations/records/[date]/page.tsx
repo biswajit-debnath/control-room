@@ -185,67 +185,67 @@ export default function DGOperationsDetailPage() {
             <table className="w-full text-sm min-w-max">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-300">
                 <tr>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap sticky left-0 bg-gradient-to-r from-gray-50 to-gray-100 z-10 shadow-sm">Shift</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Time</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">EOD in Shift</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Testing Hr From</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Testing Hr To</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Testing Progressive Hrs</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Load Hr From</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Load Hr To</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Load Progressive Hrs</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Hrs Meter Reading</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Oil Level (Diesel Tank)</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Lube Oil Level</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Oil Stock in Store</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Lube Oil Stock</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Oil Filled (L)</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Battery Condition</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Oil Pressure</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Oil Temperature</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">On Duty Staff</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Digital Signature of on duty staff</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">Remarks</th>
-                  <th className="px-4 py-3 text-left font-semibold whitespace-nowrap sticky right-0 bg-gradient-to-r from-gray-50 to-gray-100 z-10 shadow-sm">Digital Signature of EOD/AE</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap sticky left-0 bg-gradient-to-r from-gray-50 to-gray-100 z-10 shadow-sm">Shift</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Time</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">EOD</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Test From</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Test To</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Test Prog.</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Load From</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Load To</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Load Prog.</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Hrs Meter</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Diesel Level</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Lube Level</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Oil Stock</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Lube Stock</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Oil Filled</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Battery</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Pressure</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Temp.</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Staff</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Staff Sign</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Remarks</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap sticky right-0 bg-gradient-to-r from-gray-50 to-gray-100 z-10 shadow-sm">EOD/AE Sign</th>
                 </tr>
               </thead>
               <tbody>
                 {shiftRecords.map((record, index) => (
                   <tr key={record.id} className={index % 2 === 0 ? "bg-white hover:bg-blue-50" : "bg-gray-50 hover:bg-blue-100"}>
-                    <td className="px-4 py-3 border-b font-medium sticky left-0 bg-inherit z-10 shadow-sm">{shift}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{formatTime(record.date)}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.eodInShift || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{formatTimeTo12Hour(record.testingHrsFrom)}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{formatTimeTo12Hour(record.testingHrsTo)}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.testingProgressiveHrs || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{formatTimeTo12Hour(record.loadHrsFrom)}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{formatTimeTo12Hour(record.loadHrsTo)}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.loadProgressiveHrs || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.hrsMeterReading || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.oilLevelInDieselTank || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.lubeOilLevelInEngine || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.oilStockInStore || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.lubeOilStockInStore || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.oilFilledInLiters || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.batteryCondition || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.oilPressure || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.oilTemperature || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">{record.onDutyStaff || "-"}</td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-xs">{record.digitalSignatureDutyStaff}</span>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs font-medium sticky left-0 bg-inherit z-10 shadow-sm">{shift}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{formatTime(record.date)}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.eodInShift || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{formatTimeTo12Hour(record.testingHrsFrom)}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{formatTimeTo12Hour(record.testingHrsTo)}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.testingProgressiveHrs || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{formatTimeTo12Hour(record.loadHrsFrom)}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{formatTimeTo12Hour(record.loadHrsTo)}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.loadProgressiveHrs || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.hrsMeterReading || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilLevelInDieselTank || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.lubeOilLevelInEngine || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilStockInStore || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.lubeOilStockInStore || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilFilledInLiters || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.batteryCondition || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilPressure || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilTemperature || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.onDutyStaff || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b">
+                      <div className="flex items-center gap-1 md:gap-2">
+                        <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-xs truncate max-w-[80px] md:max-w-none">{record.digitalSignatureDutyStaff}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 border-b max-w-xs truncate" title={record.remarks || "-"}>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs max-w-[100px] md:max-w-xs truncate" title={record.remarks || "-"}>
                       {record.remarks || "-"}
                     </td>
-                    <td className="px-4 py-3 border-b whitespace-nowrap sticky right-0 bg-inherit z-10 shadow-sm">
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b sticky right-0 bg-inherit z-10 shadow-sm">
                       {record.digitalSignatureEodAe ? (
                         // Signed - Show signature with checkmark
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                          <span className="text-xs">{record.digitalSignatureEodAe}</span>
+                        <div className="flex items-center gap-1 md:gap-2">
+                          <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-green-500 flex-shrink-0" />
+                          <span className="text-xs truncate max-w-[80px] md:max-w-none">{record.digitalSignatureEodAe}</span>
                         </div>
                       ) : canSign ? (
                         // Not signed but user has permission - Show sign button
@@ -253,12 +253,13 @@ export default function DGOperationsDetailPage() {
                           size="sm"
                           onClick={() => handleSignature(record.id)}
                           disabled={signingRecordId === record.id}
+                          className="text-xs px-2 py-1 h-auto"
                         >
-                          {signingRecordId === record.id ? "Signing..." : "Sign"}
+                          {signingRecordId === record.id ? "..." : "Sign"}
                         </Button>
                       ) : (
                         // Not signed and user has no permission - Show pending badge
-                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
+                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300 text-xs px-2 py-0.5">
                           Pending
                         </Badge>
                       )}
@@ -276,22 +277,23 @@ export default function DGOperationsDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/dg-operations/records">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Records
-            </Button>
-          </Link>
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900">
-              DG Operations - {selectedDate && formatDate(selectedDate)}
-            </h2>
-            <p className="text-gray-500 mt-1">
-              Detailed view of all entries for this date
-            </p>
-          </div>
+      <div className="space-y-4">
+        {/* Back Button */}
+        <Link href="/dg-operations/records">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Records
+          </Button>
+        </Link>
+        
+        {/* Title and Description */}
+        <div className="mt-2">
+          <h2 className="text-xl md:text-3xl font-bold text-gray-900">
+            DG Operations - {selectedDate && formatDate(selectedDate)}
+          </h2>
+          <p className="text-sm md:text-base text-gray-500 mt-1">
+            Detailed view of all entries for this date
+          </p>
         </div>
       </div>
 

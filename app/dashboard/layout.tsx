@@ -1,11 +1,12 @@
 // Dashboard Layout with Navigation
 "use client"
 
+import { useState } from "react"
 import { useSession } from "@/components/session-provider"
 import { Button } from "@/components/ui/button"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
-import { LogOut, FileText, Activity } from "lucide-react"
+import { LogOut, FileText, Activity, User } from "lucide-react"
 
 export default function DashboardLayout({
   children,
@@ -15,6 +16,7 @@ export default function DashboardLayout({
   const { user, loading, logout } = useSession()
   const router = useRouter()
   const pathname = usePathname()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   if (loading) {
     return (
@@ -35,15 +37,18 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
+            {/* Logo */}
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">
-                Control Room System
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">
+                Control Room
               </h1>
             </div>
-            <div className="flex items-center gap-4">
+
+            {/* Desktop User Info & Logout */}
+            <div className="hidden md:flex items-center gap-4">
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">{user.name}</p>
                 <p className="text-xs text-gray-500">
@@ -55,12 +60,90 @@ export default function DashboardLayout({
                 Logout
               </Button>
             </div>
+
+            {/* Mobile User Profile Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden flex items-center gap-2 p-2 rounded-md hover:bg-gray-100"
+            >
+              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-blue-600" />
+              </div>
+              <div className="text-left flex-1">
+                <p className="text-sm font-medium text-gray-900 leading-tight">{user.name}</p>
+                <p className="text-xs text-gray-500 leading-tight">{user.role}</p>
+              </div>
+              <svg
+                className={`h-5 w-5 text-gray-400 transition-transform ${
+                  mobileMenuOpen ? "rotate-180" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
           </div>
         </div>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 bg-white shadow-lg">
+            <div className="px-4 py-3 space-y-1">
+              {/* Phone Number */}
+              <div className="px-3 py-2 text-xs text-gray-500">
+                📱 {user.phoneNumber}
+              </div>
+
+              <div className="border-t border-gray-200 my-2"></div>
+
+              {/* Navigation Links */}
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                  pathname === "/dashboard"
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <Activity className="h-5 w-5" />
+                Dashboard
+              </Link>
+              <Link
+                href="/dg-operations"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                  pathname === "/dg-operations" || pathname?.startsWith("/dg-operations")
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <FileText className="h-5 w-5" />
+                DG Operations
+              </Link>
+
+              <div className="border-t border-gray-200 my-2"></div>
+
+              {/* Logout Button */}
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  logout()
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-red-700 hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="h-5 w-5" />
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200">
+      {/* Desktop Navigation */}
+      <nav className="hidden md:block bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8 h-14">
             <Link
