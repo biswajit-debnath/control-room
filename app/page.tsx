@@ -10,11 +10,8 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!loading) {
-      if (user) {
-        router.push("/dashboard")
-      } else {
-        router.push("/login")
-      }
+      // Everyone goes to dashboard - layout handles auth UI differences
+      router.push("/dashboard")
     }
   }, [user, loading, router])
 

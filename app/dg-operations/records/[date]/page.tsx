@@ -52,7 +52,7 @@ export default function DGOperationsDetailPage() {
   const [signingRecordId, setSigningRecordId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (user && dateParam) {
+    if (dateParam) {
       // Decode the date from URL
       const decodedDate = decodeURIComponent(dateParam)
       setSelectedDate(new Date(decodedDate))
@@ -114,12 +114,7 @@ export default function DGOperationsDetailPage() {
     )
   }
 
-  if (!user) {
-    router.push("/login")
-    return null
-  }
-
-  const canSign = user.role === "EOD" || user.role === "AE"
+  const canSign = user && (user.role === "EOD" || user.role === "AE")
 
   // Helper function to convert 24-hour time to 12-hour format with AM/PM
   const formatTimeTo12Hour = (time24: string | null | undefined): string => {
@@ -297,11 +292,25 @@ export default function DGOperationsDetailPage() {
         </div>
       </div>
 
+      {/* Public View Notice for unauthenticated users */}
+      {!user && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="pt-4">
+            <p className="text-sm text-blue-700 flex items-center gap-2">
+              👁️ <span>
+                <strong>Public View:</strong> You are viewing records in read-only mode. 
+                Login to create new entries or sign records.
+              </span>
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Info Card */}
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-6">
           <p className="text-sm text-blue-800">
-            ℹ️ For the date {selectedDate && formatDate(selectedDate)}, there {records.length === 1 ? 'is' : 'are'} <strong>{records.length}</strong> {records.length === 1 ? 'entry' : 'entries'} recorded. If no reading is taken for a particular shift, it will show "No entries for this shift" in the respective shift table.
+            ℹ️ For the date {selectedDate && formatDate(selectedDate)}, there {records.length === 1 ? 'is' : 'are'} <strong>{records.length}</strong> {records.length === 1 ? 'entry' : 'entries'} recorded.
           </p>
         </CardContent>
       </Card>

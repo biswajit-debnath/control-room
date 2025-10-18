@@ -5,21 +5,39 @@ import { useSession } from "@/components/session-provider"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { FileText, Clock, Users } from "lucide-react"
+import { FileText, Clock, Users, LogIn } from "lucide-react"
 
 export default function DashboardPage() {
   const { user } = useSession()
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold text-gray-900">
-          Welcome, {user?.name}
-        </h2>
-        <p className="text-gray-500 mt-1">
-          Control Room Management Dashboard
-        </p>
-      </div>
+      {/* Welcome Section */}
+      {user ? (
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">
+            Welcome, {user.name}
+          </h2>
+          <p className="text-gray-500 mt-1">
+            Control Room Management Dashboard
+          </p>
+        </div>
+      ) : (
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+          <h2 className="text-2xl md:text-3xl font-bold">
+            Welcome to Control Room
+          </h2>
+          <p className="text-blue-100 mt-2">
+            You are viewing in read-only mode. Login to create entries and sign records.
+          </p>
+          <Link href="/login">
+            <Button variant="secondary" size="sm" className="mt-4">
+              <LogIn className="h-4 w-4 mr-2" />
+              Login to Get Started
+            </Button>
+          </Link>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* DG Operations Card */}
@@ -32,11 +50,19 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-500 mb-4">
-              Manage DG operations data entry, view records, and update signatures.
+              {user 
+                ? "Manage DG operations data entry, view records, and update signatures."
+                : "View DG operations records, operational data, and signatures."}
             </p>
-            <Link href="/dg-operations">
-              <Button className="w-full">Access Module</Button>
-            </Link>
+            {user ? (
+              <Link href="/dg-operations">
+                <Button className="w-full">Access Module</Button>
+              </Link>
+            ) : (
+              <Link href="/dg-operations/records">
+                <Button className="w-full">View Records</Button>
+              </Link>
+            )}
           </CardContent>
         </Card>
 
@@ -94,29 +120,32 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Access</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div>
-            <Link href="/dg-operations">
-                <Button variant="outline" className="w-full justify-start">
-                <FileText className="h-4 w-4 mr-2" />
-                Create New DG Operation Entry
-                </Button>
-            </Link>
-          </div>
-          <div>
-            <Link href="/dg-operations/records">
-                <Button variant="outline" className="w-full justify-start">
-                <FileText className="h-4 w-4 mr-2" />
-                View All Records
-                </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Quick Access - Only for authenticated users */}
+      {user && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Access</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div>
+              <Link href="/dg-operations">
+                  <Button variant="outline" className="w-full justify-start">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Create New DG Operation Entry
+                  </Button>
+              </Link>
+            </div>
+            <div>
+              <Link href="/dg-operations/records">
+                  <Button variant="outline" className="w-full justify-start">
+                  <FileText className="h-4 w-4 mr-2" />
+                  View All Records
+                  </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

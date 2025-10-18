@@ -30,10 +30,6 @@ export async function GET(req: NextRequest) {
   try {
     const user = await getCurrentUser(req)
     
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-    
     const { searchParams } = new URL(req.url)
     const date = searchParams.get("date")
     const shift = searchParams.get("shift")
@@ -77,15 +73,18 @@ export async function GET(req: NextRequest) {
       ],
     })
     
-    // Log activity
-    await prisma.activity.create({
-      data: {
-        userId: user.id,
-        action: "VIEW",
-        module: "DG_OPERATIONS",
-        details: `Viewed ${operations.length} records`,
-      },
-    })
+    // Log activity for logged in user
+    if (user) {
+      await prisma.activity.create({
+              data: {
+                userId: user.id,
+                action: "VIEW",
+                module: "DG_OPERATIONS",
+                details: `Viewed ${operations.length} records`,
+              },
+            })
+    }
+      
     
     return NextResponse.json({ data: operations })
   } catch (error) {

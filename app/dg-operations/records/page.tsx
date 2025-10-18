@@ -39,9 +39,7 @@ export default function RecordsPage() {
   const [signingRecordId, setSigningRecordId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (user) {
-      fetchRecords()
-    }
+    fetchRecords()
   }, [user])
 
   const applyFilters = useCallback(() => {
@@ -126,12 +124,7 @@ export default function RecordsPage() {
     return <div>Loading...</div>
   }
 
-  if (!user) {
-    router.push("/login")
-    return null
-  }
-
-  const canSign = user.role === "EOD" || user.role === "AE"
+  const canSign = user && (user.role === "EOD" || user.role === "AE")
 
   return (
     <div className="space-y-6">
@@ -139,15 +132,38 @@ export default function RecordsPage() {
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <div>
             <h2 className="text-xl md:text-3xl font-bold text-gray-900">All Records</h2>
-            <p className="text-sm md:text-base text-gray-500 mt-1">View and manage DG operation entries</p>
+            <p className="text-sm md:text-base text-gray-500 mt-1">
+              {user ? "View and manage DG operation entries" : "Viewing DG operation entries (read-only)"}
+            </p>
           </div>
-          <Link href="/dg-operations">
-            <Button className="w-full md:w-auto">
-              <PlusCircle className="h-4 w-4 mr-2" />
-              New Entry
-            </Button>
-          </Link>
+          {user ? (
+            <Link href="/dg-operations">
+              <Button className="w-full md:w-auto">
+                <PlusCircle className="h-4 w-4 mr-2" />
+                New Entry
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/login">
+              <Button className="w-full md:w-auto">
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Login to Create Entry
+              </Button>
+            </Link>
+          )}
         </div>
+
+        {/* Public View Notice for unauthenticated users */}
+        {!user && (
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="pt-4">
+              <p className="text-sm text-blue-700">
+                👁️ <strong>Public View:</strong> You are viewing records in read-only mode. 
+                Login to create new entries or sign records.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Filters */}

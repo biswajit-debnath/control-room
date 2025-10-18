@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
 
 export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState("")
@@ -50,48 +52,58 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Control Room</CardTitle>
-          <p className="text-sm text-gray-500">
-            DG Operations Management System
-          </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
-              <Input
-                id="phoneNumber"
-                type="tel"
-                placeholder="Enter your phone number"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                required
-                disabled={isLoading}
-              />
+      <div className="w-full max-w-md space-y-4">
+        {/* Back to Dashboard Button */}
+        <Link href="/dashboard">
+          <Button variant="ghost" size="sm" className="mb-2">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </Link>
+
+        <Card className="w-full">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-2xl font-bold">Control Room</CardTitle>
+            <p className="text-sm text-gray-500">
+              DG Operations Management System
+            </p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber">Phone Number</Label>
+                <Input
+                  id="phoneNumber"
+                  type="tel"
+                  placeholder="Enter your phone number"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Logging in..." : "Login"}
+              </Button>
+            </form>
+            <div className="mt-6 pt-4 border-t text-center text-sm text-gray-500">
+              <p>Contact administrator for account access</p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Login"}
-            </Button>
-          </form>
-          <div className="mt-6 pt-4 border-t text-center text-sm text-gray-500">
-            <p>Contact administrator for account access</p>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
