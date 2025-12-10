@@ -6,7 +6,7 @@ import { useSession } from "@/components/session-provider"
 import { Button } from "@/components/ui/button"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
-import { LogOut, FileText, Activity, User, LogIn } from "lucide-react"
+import { LogOut, FileText, Activity, User, LogIn, Users } from "lucide-react"
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -156,6 +156,18 @@ export default function AppLayout({
                 <FileText className="h-5 w-5" />
                 DG Operations
               </Link>
+              <Link
+                href="/dashboard/users"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                  pathname === "/dashboard/users"
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <Users className="h-5 w-5" />
+                Users
+              </Link>
 
               <div className="border-t border-gray-200 my-2"></div>
 
@@ -211,6 +223,17 @@ export default function AppLayout({
             >
               <FileText className="h-4 w-4 mr-2" />
               DG Operations
+            </Link>
+            <Link
+              href="/dashboard/users"
+              className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                pathname === "/dashboard/users"
+                  ? "border-blue-500 text-gray-900"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Users
             </Link>
           </div>
         </div>

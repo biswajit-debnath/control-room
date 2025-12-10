@@ -78,8 +78,8 @@ export default function RecordsPage() {
   }
 
   const handleSignature = async (recordId: string) => {
-    if (!user || (user.role !== "EOD" && user.role !== "AE")) {
-      toast.error("Only EOD and AE can sign entries")
+    if (!user || (user.role !== "EOD" && user.role !== "AE" && user.role !== "SEA" && user.role !== "EA")) {
+      toast.error("Only EOD, AE, SEA, and EA can sign entries")
       return
     }
 

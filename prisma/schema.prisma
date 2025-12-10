@@ -28,6 +28,8 @@ enum Role {
   TA
   EOD
   AE
+  SEA
+  EA
 }
 
 // Activity tracking for audit trail

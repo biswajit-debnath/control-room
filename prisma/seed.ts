@@ -15,28 +15,34 @@ async function main() {
   */
   const users = [
     {
-      phoneNumber: "9999999999",
+      phoneNumber: "8471925921",
       password: "password123",
       name: "Kaustabh Das",
-      role: "AE",
-    },
-    {
-      phoneNumber: "8888888888",
-      password: "password123",
-      name: "EOD Staff",
-      role: "EOD",
-    },
-    {
-      phoneNumber: "7777777777",
-      password: "password123",
-      name: "Gurjyot Sandhu",
       role: "TA",
     },
     {
-      phoneNumber: "1234567890",
+      phoneNumber: "7001367546",
       password: "password123",
-      name: "Biswajit Debnath",
-      role: "EOD",
+      name: "Prasanjit Dev",
+      role: "EA",
+    },
+    {
+      phoneNumber: "8473936628",
+      password: "password123",
+      name: "Apurba Krishna Burhagohain",
+      role: "SEA",
+    },
+    {
+      phoneNumber: "6005430197",
+      password: "password123",
+      name: "Arun Kumar",
+      role: "AE",
+    },
+    {
+      phoneNumber: "7002625012",
+      password: "password123",
+      name: "Nikhil Sharma",
+      role: "TA",
     },
   ]
 
@@ -45,14 +51,27 @@ async function main() {
       where: { phoneNumber: userData.phoneNumber },
     })
 
+    const hashedPassword = await bcrypt.hash(userData.password, 10)
+
     if (!existingUser) {
-      userData["password"] = await bcrypt.hash(userData["password"], 10)
       await prisma.user.create({
-        data: userData as any,
+        data: {
+          ...userData,
+          password: hashedPassword,
+        } as any,
       })
       console.log(`✅ Created user: ${userData.name} (${userData.phoneNumber})`)
     } else {
-      console.log(`⏭️  User already exists: ${userData.name}`)
+      await prisma.user.update({
+        where: { phoneNumber: userData.phoneNumber },
+        data: {
+          name: userData.name,
+          role: userData.role,
+          password: hashedPassword,
+          phoneVerified: true,
+        } as any,
+      })
+      console.log(`🔄 Updated user: ${userData.name} (${userData.phoneNumber})`)
     }
   }
 

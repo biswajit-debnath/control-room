@@ -8,7 +8,7 @@ type User = {
   id: string
   name: string
   phoneNumber: string
-  role: "TA" | "EOD" | "AE"
+  role: "TA" | "EOD" | "AE" | "SEA" | "EA"
 } | null
 
 type SessionContextType = {
