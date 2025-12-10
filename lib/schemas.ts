@@ -14,7 +14,7 @@ export type LoginInput = z.infer<typeof loginSchema>
 // DG Operation Create Schema
 export const dgOperationCreateSchema = z.object({
   date: z.coerce.date(),
-  shift: z.enum(["M/s", "G/s", "E/s"], {
+  shift: z.enum(["M/S", "G/S", "E/S"], {
     message: "Please select a shift",
   }),
   

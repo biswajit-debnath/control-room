@@ -9,8 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { formatDate, formatTime } from "@/lib/utils"
-import { ArrowLeft, CheckCircle, Edit } from "lucide-react"
+import { ArrowLeft, CheckCircle, Edit, FileDown } from "lucide-react"
 import Link from "next/link"
+import * as XLSX from "xlsx"
 
 type DGOperation = {
   id: string
@@ -62,12 +63,15 @@ export default function DGOperationsDetailPage() {
 
   const fetchRecords = async (date: string) => {
     try {
-      const res = await fetch(`/api/dg-operations?date=${date}`)
+      console.log("Fetching records for date:", date)
+      const res = await fetch(`/api/dg-operations?date=${encodeURIComponent(date)}`)
       if (!res.ok) throw new Error("Failed to fetch records")
       
       const data = await res.json()
+      console.log("Received records:", data.data)
       setRecords(data.data)
     } catch (error) {
+      console.error("Error fetching records:", error)
       toast.error("Failed to load records")
     } finally {
       setIsLoading(false)
@@ -103,6 +107,71 @@ export default function DGOperationsDetailPage() {
     }
   }
 
+  const exportToExcel = () => {
+    if (records.length === 0) {
+      toast.error("No data to export")
+      return
+    }
+
+    try {
+      // Prepare data for export
+      const exportData = records.map((record, index) => ({
+        "Sr. No.": index + 1,
+        "Date": formatDate(record.date),
+        "Time": formatTime(record.date),
+        "Shift": record.shift,
+        "EOD in Shift": record.eodInShift || "-",
+        "Testing Hours From": formatTimeTo12Hour(record.testingHrsFrom),
+        "Testing Hours To": formatTimeTo12Hour(record.testingHrsTo),
+        "Testing Progressive Hours": record.testingProgressiveHrs || "-",
+        "Load Hours From": formatTimeTo12Hour(record.loadHrsFrom),
+        "Load Hours To": formatTimeTo12Hour(record.loadHrsTo),
+        "Load Progressive Hours": record.loadProgressiveHrs || "-",
+        "Hours Meter Reading": record.hrsMeterReading || "-",
+        "Oil Level in Diesel Tank": record.oilLevelInDieselTank || "-",
+        "Lube Oil Level in Engine": record.lubeOilLevelInEngine || "-",
+        "Lube Oil Pressure": record.oilPressure || "-",
+        "Oil Stock in Store": record.oilStockInStore || "-",
+        "Lube Oil Stock in Store": record.lubeOilStockInStore || "-",
+        "Oil Filled (Liters)": record.oilFilledInLiters || "-",
+        "Battery Condition": record.batteryCondition || "-",
+        "Oil Temperature": record.oilTemperature || "-",
+        "On Duty Staff": record.onDutyStaff || "-",
+        "Staff Signature": record.digitalSignatureDutyStaff || "-",
+        "EOD/AE Signature": record.digitalSignatureEodAe || "Pending",
+        "Signed At": record.signedAt ? new Date(record.signedAt).toLocaleString() : "-",
+        "Remarks": record.remarks || "-",
+      }))
+
+      // Create workbook and worksheet
+      const ws = XLSX.utils.json_to_sheet(exportData)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "DG Operations")
+
+      // Auto-size columns
+      const max_width = exportData.reduce((w: any, r: any) => {
+        return Object.keys(r).map(key => {
+          const cellValue = r[key]?.toString() || ""
+          return Math.max(w[key] || 10, cellValue.length)
+        })
+      }, {})
+
+      ws['!cols'] = Object.keys(exportData[0] || {}).map((key, i) => ({
+        wch: Math.min(max_width[key] || 10, 50)
+      }))
+
+      // Generate file name with date
+      const fileName = `DG_Operations_${selectedDate ? formatDate(selectedDate).replace(/\//g, "-") : "Export"}.xlsx`
+
+      // Export file
+      XLSX.writeFile(wb, fileName)
+      toast.success("Excel file exported successfully!")
+    } catch (error) {
+      console.error("Export error:", error)
+      toast.error("Failed to export data")
+    }
+  }
+
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -128,9 +197,9 @@ export default function DGOperationsDetailPage() {
 
   // Group records by shift
   const shiftGroups = {
-    "M/s": records.filter(r => r.shift === "M/s"),
-    "G/s": records.filter(r => r.shift === "G/s"),
-    "E/s": records.filter(r => r.shift === "E/s"),
+    "M/S": records.filter(r => r.shift === "M/S"),
+    "G/S": records.filter(r => r.shift === "G/S"),
+    "E/S": records.filter(r => r.shift === "E/S"),
   }
 
   const renderShiftTable = (shift: string, shiftRecords: DGOperation[]) => {
@@ -189,14 +258,14 @@ export default function DGOperationsDetailPage() {
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Load From</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Load To</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Load Prog.</th>
-                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Hrs Meter</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Hours Meter</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Diesel Level</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Lube Level</th>
+                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Lube Pressure</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Oil Stock</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Lube Stock</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Oil Filled</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Battery</th>
-                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Pressure</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Temp.</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Staff</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Staff Sign</th>
@@ -219,11 +288,11 @@ export default function DGOperationsDetailPage() {
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.hrsMeterReading || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilLevelInDieselTank || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.lubeOilLevelInEngine || "-"}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilPressure || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilStockInStore || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.lubeOilStockInStore || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilFilledInLiters || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.batteryCondition || "-"}</td>
-                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilPressure || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilTemperature || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.onDutyStaff || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b">
@@ -273,13 +342,27 @@ export default function DGOperationsDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="space-y-4">
-        {/* Back Button */}
-        <Link href="/dg-operations/records">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Records
-          </Button>
-        </Link>
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <Link href="/dg-operations/records">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Records
+            </Button>
+          </Link>
+          
+          {records.length > 0 && (
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={exportToExcel}
+              className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
+            >
+              <FileDown className="h-4 w-4 mr-2" />
+              Export to Excel
+            </Button>
+          )}
+        </div>
         
         {/* Title and Description */}
         <div className="mt-2">
@@ -317,9 +400,9 @@ export default function DGOperationsDetailPage() {
 
       {/* Shift Tables */}
       <div className="space-y-6">
-        {renderShiftTable("M/s", shiftGroups["M/s"])}
-        {renderShiftTable("G/s", shiftGroups["G/s"])}
-        {renderShiftTable("E/s", shiftGroups["E/s"])}
+        {renderShiftTable("M/S", shiftGroups["M/S"])}
+        {renderShiftTable("G/S", shiftGroups["G/S"])}
+        {renderShiftTable("E/S", shiftGroups["E/S"])}
       </div>
     </div>
   )

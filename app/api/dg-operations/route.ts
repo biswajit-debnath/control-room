@@ -40,10 +40,13 @@ export async function GET(req: NextRequest) {
     
     // Filter by specific date
     if (date) {
+      console.log("Filtering by date:", date)
       const startOfDay = new Date(date)
       startOfDay.setHours(0, 0, 0, 0)
       const endOfDay = new Date(date)
       endOfDay.setHours(23, 59, 59, 999)
+      
+      console.log("Date range:", { startOfDay, endOfDay })
       
       where.date = {
         gte: startOfDay,
@@ -72,6 +75,8 @@ export async function GET(req: NextRequest) {
         { createdAt: "desc" }, // Show newest first within same day
       ],
     })
+    
+    console.log("Found operations:", operations.length)
     
     // Log activity for logged in user
     if (user) {

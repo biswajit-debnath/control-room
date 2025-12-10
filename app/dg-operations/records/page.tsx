@@ -53,7 +53,10 @@ export default function RecordsPage() {
     }
 
     if (filterShift) {
-      filtered = filtered.filter(record => record.shift === filterShift)
+      // Support both uppercase (M/S) and lowercase (M/s) shift values
+      filtered = filtered.filter(record => 
+        record.shift === filterShift || record.shift === filterShift.replace('S', 's')
+      )
     }
 
     setFilteredRecords(filtered)
@@ -195,9 +198,9 @@ export default function RecordsPage() {
                 className="text-xs md:text-sm"
               >
                 <option value="">All Shifts</option>
-                <option value="M/s">M/s</option>
-                <option value="G/s">G/s</option>
-                <option value="E/s">E/s</option>
+                <option value="M/S">M/S</option>
+                <option value="G/S">G/S</option>
+                <option value="E/S">E/S</option>
               </Select>
             </div>
             <div className="flex items-end">

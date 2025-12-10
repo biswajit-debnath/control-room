@@ -44,7 +44,7 @@ export async function initializeAutoGeneration() {
       }
       
       if (systemUser) {
-        const shifts = ['M/s']
+        const shifts = ['M/S']
         
         for (const shift of shifts) {
           // Use current time when creating the record

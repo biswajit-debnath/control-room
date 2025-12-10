@@ -28,6 +28,8 @@ export default function DGOperationsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [eodUsers, setEodUsers] = useState<EODUser[]>([])
   const [showCustomEod, setShowCustomEod] = useState(false)
+  const [allUsers, setAllUsers] = useState<EODUser[]>([])
+  const [showCustomOnDuty, setShowCustomOnDuty] = useState(false)
   
   // Helper function to get current browser time in datetime-local format
   const getCurrentBrowserTime = () => {
@@ -48,6 +50,23 @@ export default function DGOperationsPage() {
     const period = hour >= 12 ? 'PM' : 'AM'
     const hour12 = hour % 12 || 12
     return `${hour12}:${minutes} ${period}`
+  }
+
+  // Helper function to calculate hours difference between two time strings (HH:MM format)
+  const calculateHoursDifference = (startTime: string, endTime: string): number => {
+    if (!startTime || !endTime) return 0
+    
+    const [startHours, startMinutes] = startTime.split(':').map(Number)
+    const [endHours, endMinutes] = endTime.split(':').map(Number)
+    
+    const startTotalMinutes = startHours * 60 + startMinutes
+    const endTotalMinutes = endHours * 60 + endMinutes
+    
+    const differenceMinutes = endTotalMinutes - startTotalMinutes
+    const differenceHours = differenceMinutes / 60
+    
+    // Return absolute value rounded to 2 decimal places
+    return Math.abs(parseFloat(differenceHours.toFixed(2)))
   }
   
   const [formData, setFormData] = useState({
@@ -71,6 +90,7 @@ export default function DGOperationsPage() {
     oilPressure: "",
     oilTemperature: "",
     onDutyStaff: "",
+    customOnDutyStaff: "",
     remarks: "",
   })
 
@@ -89,6 +109,25 @@ export default function DGOperationsPage() {
     }
 
     fetchEodUsers()
+  }, [])
+
+  // Fetch all users for on duty staff dropdown
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      try {
+        const res = await fetch("/api/users")
+        if (res.ok) {
+          const result = await res.json()
+          if (result.success && result.data) {
+            setAllUsers(result.data)
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching all users:", error)
+      }
+    }
+
+    fetchAllUsers()
   }, [])
 
   // Auto-fill form for testing (controlled by testing config)
@@ -151,6 +190,15 @@ export default function DGOperationsPage() {
         setShowCustomEod(false)
         setFormData({ ...formData, [name]: value, customEod: "" })
       }
+    } else if (name === "onDutyStaff") {
+      // Handle On Duty Staff selection
+      if (value === "custom") {
+        setShowCustomOnDuty(true)
+        setFormData({ ...formData, [name]: "", customOnDutyStaff: "" })
+      } else {
+        setShowCustomOnDuty(false)
+        setFormData({ ...formData, [name]: value, customOnDutyStaff: "" })
+      }
     } else {
       setFormData({ ...formData, [name]: value })
     }
@@ -166,6 +214,23 @@ export default function DGOperationsPage() {
         ? formData.customEod 
         : formData.eodInShift
 
+      // Use custom On Duty Staff if provided, otherwise use selected value
+      const finalOnDutyStaff = showCustomOnDuty && formData.customOnDutyStaff
+        ? formData.customOnDutyStaff
+        : formData.onDutyStaff
+
+      // Calculate testing progressive hours from time range
+      const calculatedTestingProgressiveHrs = calculateHoursDifference(
+        formData.testingHrsFrom, 
+        formData.testingHrsTo
+      )
+
+      // Calculate load progressive hours from time range
+      const calculatedLoadProgressiveHrs = calculateHoursDifference(
+        formData.loadHrsFrom,
+        formData.loadHrsTo
+      )
+
       const res = await fetch("/api/dg-operations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -173,8 +238,9 @@ export default function DGOperationsPage() {
           ...formData,
           date: new Date(formData.date),
           eodInShift: finalEodInShift || undefined,
-          testingProgressiveHrs: formData.testingProgressiveHrs ? parseFloat(formData.testingProgressiveHrs) : undefined,
-          loadProgressiveHrs: formData.loadProgressiveHrs ? parseFloat(formData.loadProgressiveHrs) : undefined,
+          onDutyStaff: finalOnDutyStaff || undefined,
+          testingProgressiveHrs: calculatedTestingProgressiveHrs || undefined,
+          loadProgressiveHrs: calculatedLoadProgressiveHrs || undefined,
           hrsMeterReading: formData.hrsMeterReading ? parseFloat(formData.hrsMeterReading) : undefined,
           oilLevelInDieselTank: formData.oilLevelInDieselTank ? parseFloat(formData.oilLevelInDieselTank) : undefined,
           lubeOilLevelInEngine: formData.lubeOilLevelInEngine ? parseFloat(formData.lubeOilLevelInEngine) : undefined,
@@ -195,6 +261,7 @@ export default function DGOperationsPage() {
       
       // Reset form for next entry
       setShowCustomEod(false)
+      setShowCustomOnDuty(false)
       setFormData({
         date: getCurrentBrowserTime(),
         shift: "",
@@ -216,6 +283,7 @@ export default function DGOperationsPage() {
         oilPressure: "",
         oilTemperature: "",
         onDutyStaff: "",
+        customOnDutyStaff: "",
         remarks: "",
       })
     } catch (error) {
@@ -283,9 +351,9 @@ export default function DGOperationsPage() {
                   className="text-xs md:text-sm"
                 >
                   <option value="">Select Shift</option>
-                  <option value="M/s">M/s</option>
-                  <option value="G/s">G/s</option>
-                  <option value="E/s">E/s</option>
+                  <option value="M/S">M/S</option>
+                  <option value="G/S">G/S</option>
+                  <option value="E/S">E/S</option>
                 </Select>
               </div>
               <div className={showCustomEod ? "md:col-span-2" : ""}>
@@ -320,7 +388,7 @@ export default function DGOperationsPage() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="testingHrsFrom" className="text-xs md:text-sm">Testing Hrs From</Label>
+                <Label htmlFor="testingHrsFrom" className="text-xs md:text-sm">Testing Hours From</Label>
                 <Input
                   id="testingHrsFrom"
                   name="testingHrsFrom"
@@ -335,7 +403,7 @@ export default function DGOperationsPage() {
             {/* Row 2: Testing & Load Hours */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
               <div>
-                <Label htmlFor="testingHrsTo" className="text-xs md:text-sm">Testing Hrs To</Label>
+                <Label htmlFor="testingHrsTo" className="text-xs md:text-sm">Testing Hours To</Label>
                 <Input
                   id="testingHrsTo"
                   name="testingHrsTo"
@@ -346,19 +414,7 @@ export default function DGOperationsPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="testingProgressiveHrs" className="text-xs md:text-sm">Test Prog. Hrs</Label>
-                <Input
-                  id="testingProgressiveHrs"
-                  name="testingProgressiveHrs"
-                  type="number"
-                  step="0.01"
-                  value={formData.testingProgressiveHrs}
-                  onChange={handleChange}
-                  className="text-xs md:text-sm"
-                />
-              </div>
-              <div>
-                <Label htmlFor="loadHrsFrom" className="text-xs md:text-sm">Load Hrs From</Label>
+                <Label htmlFor="loadHrsFrom" className="text-xs md:text-sm">Load Hours From</Label>
                 <Input
                   id="loadHrsFrom"
                   name="loadHrsFrom"
@@ -369,7 +425,7 @@ export default function DGOperationsPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="loadHrsTo" className="text-xs md:text-sm">Load Hrs To</Label>
+                <Label htmlFor="loadHrsTo" className="text-xs md:text-sm">Load Hours To</Label>
                 <Input
                   id="loadHrsTo"
                   name="loadHrsTo"
@@ -379,24 +435,12 @@ export default function DGOperationsPage() {
                   className="text-xs md:text-sm"
                 />
               </div>
-              <div>
-                <Label htmlFor="loadProgressiveHrs" className="text-xs md:text-sm">Load Prog. Hrs</Label>
-                <Input
-                  id="loadProgressiveHrs"
-                  name="loadProgressiveHrs"
-                  type="number"
-                  step="0.01"
-                  value={formData.loadProgressiveHrs}
-                  onChange={handleChange}
-                  className="text-xs md:text-sm"
-                />
-              </div>
             </div>
 
             {/* Row 3: Meter Reading & Oil Levels */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
               <div>
-                <Label htmlFor="hrsMeterReading" className="text-xs md:text-sm">Hrs Meter</Label>
+                <Label htmlFor="hrsMeterReading" className="text-xs md:text-sm">Hours Meter</Label>
                 <Input
                   id="hrsMeterReading"
                   name="hrsMeterReading"
@@ -427,6 +471,18 @@ export default function DGOperationsPage() {
                   type="number"
                   step="0.01"
                   value={formData.lubeOilLevelInEngine}
+                  onChange={handleChange}
+                  className="text-xs md:text-sm"
+                />
+              </div>
+              <div>
+                <Label htmlFor="oilPressure" className="text-xs md:text-sm">Lube Oil Pressure</Label>
+                <Input
+                  id="oilPressure"
+                  name="oilPressure"
+                  type="number"
+                  step="0.01"
+                  value={formData.oilPressure}
                   onChange={handleChange}
                   className="text-xs md:text-sm"
                 />
@@ -473,26 +529,17 @@ export default function DGOperationsPage() {
               </div>
               <div>
                 <Label htmlFor="batteryCondition" className="text-xs md:text-sm">Battery</Label>
-                <Input
+                <Select
                   id="batteryCondition"
                   name="batteryCondition"
-                  type="text"
                   value={formData.batteryCondition}
                   onChange={handleChange}
                   className="text-xs md:text-sm"
-                />
-              </div>
-              <div>
-                <Label htmlFor="oilPressure" className="text-xs md:text-sm">Pressure</Label>
-                <Input
-                  id="oilPressure"
-                  name="oilPressure"
-                  type="number"
-                  step="0.01"
-                  value={formData.oilPressure}
-                  onChange={handleChange}
-                  className="text-xs md:text-sm"
-                />
+                >
+                  <option value="">Select Condition</option>
+                  <option value="OK">OK</option>
+                  <option value="Discharged">Discharged</option>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="oilTemperature" className="text-xs md:text-sm">Temperature</Label>
@@ -506,16 +553,36 @@ export default function DGOperationsPage() {
                   className="text-xs md:text-sm"
                 />
               </div>
-              <div>
+              <div className={showCustomOnDuty ? "md:col-span-2" : ""}>
                 <Label htmlFor="onDutyStaff" className="text-xs md:text-sm">On Duty Staff</Label>
-                <Input
-                  id="onDutyStaff"
-                  name="onDutyStaff"
-                  type="text"
-                  value={formData.onDutyStaff}
-                  onChange={handleChange}
-                  className="text-xs md:text-sm"
-                />
+                <div className="flex flex-col md:flex-row gap-2">
+                  <Select
+                    id="onDutyStaff"
+                    name="onDutyStaff"
+                    value={formData.onDutyStaff}
+                    onChange={handleChange}
+                    className={`text-xs md:text-sm ${showCustomOnDuty ? "md:flex-1" : ""}`}
+                  >
+                    <option value="">Select Staff</option>
+                    {allUsers.map((user) => (
+                      <option key={user.id} value={user.name}>
+                        {user.name}
+                      </option>
+                    ))}
+                    <option value="custom">+ Add Custom Staff</option>
+                  </Select>
+                  {showCustomOnDuty && (
+                    <Input
+                      id="customOnDutyStaff"
+                      name="customOnDutyStaff"
+                      type="text"
+                      placeholder="Enter staff name"
+                      value={formData.customOnDutyStaff}
+                      onChange={handleChange}
+                      className="text-xs md:text-sm md:flex-1"
+                    />
+                  )}
+                </div>
               </div>
             </div>
 
