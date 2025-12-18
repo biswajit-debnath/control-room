@@ -42,9 +42,6 @@ export const dgOperationCreateSchema = z.object({
   oilPressure: z.coerce.number().optional(),
   oilTemperature: z.coerce.number().optional(),
   
-  // Staff Information
-  onDutyStaff: z.string().optional(),
-  
   // Remarks
   remarks: z.string().optional(),
 })

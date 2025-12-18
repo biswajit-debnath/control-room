@@ -12,13 +12,30 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { formatDate, formatTime, formatDateTime } from "@/lib/utils"
-import { CheckCircle, XCircle, FileText, PlusCircle, Filter } from "lucide-react"
+import { CheckCircle, XCircle, FileText, PlusCircle, Filter, FileDown } from "lucide-react"
 import Link from "next/link"
+import * as XLSX from "xlsx"
 
 type DGOperation = {
   id: string
   date: string
   shift: string
+  eodInShift?: number
+  testingHrsFrom?: string
+  testingHrsTo?: string
+  testingProgressiveHrs?: number
+  loadHrsFrom?: string
+  loadHrsTo?: string
+  loadProgressiveHrs?: number
+  hrsMeterReading?: number
+  oilLevelInDieselTank?: number
+  lubeOilLevelInEngine?: number
+  oilStockInStore?: number
+  lubeOilStockInStore?: number
+  oilFilledInLiters?: number
+  batteryCondition?: string
+  oilPressure?: number
+  oilTemperature?: number
   onDutyStaff?: string
   digitalSignatureDutyStaff?: string
   digitalSignatureEodAe?: string
@@ -34,7 +51,8 @@ export default function RecordsPage() {
   const [records, setRecords] = useState<DGOperation[]>([])
   const [filteredRecords, setFilteredRecords] = useState<DGOperation[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filterDate, setFilterDate] = useState("")
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
   const [filterShift, setFilterShift] = useState("")
   const [signingRecordId, setSigningRecordId] = useState<string | null>(null)
 
@@ -45,10 +63,26 @@ export default function RecordsPage() {
   const applyFilters = useCallback(() => {
     let filtered = [...records]
 
-    if (filterDate) {
+    if (fromDate || toDate) {
       filtered = filtered.filter(record => {
         const recordDate = new Date(record.date).toISOString().split('T')[0]
-        return recordDate === filterDate
+        
+        // If both dates are provided, check if record is within range
+        if (fromDate && toDate) {
+          return recordDate >= fromDate && recordDate <= toDate
+        }
+        
+        // If only fromDate is provided, check if record is on or after fromDate
+        if (fromDate) {
+          return recordDate >= fromDate
+        }
+        
+        // If only toDate is provided, check if record is on or before toDate
+        if (toDate) {
+          return recordDate <= toDate
+        }
+        
+        return true
       })
     }
 
@@ -60,7 +94,7 @@ export default function RecordsPage() {
     }
 
     setFilteredRecords(filtered)
-  }, [records, filterDate, filterShift])
+  }, [records, fromDate, toDate, filterShift])
 
   useEffect(() => {
     applyFilters()
@@ -113,6 +147,88 @@ export default function RecordsPage() {
     router.push(`/dg-operations/records/${encodedDate}`)
   }
 
+  // Helper function to convert 24-hour time to 12-hour format with AM/PM
+  const formatTimeTo12Hour = (time24: string | null | undefined): string => {
+    if (!time24) return "-"
+    const [hours, minutes] = time24.split(':')
+    const hour = parseInt(hours, 10)
+    const period = hour >= 12 ? 'PM' : 'AM'
+    const hour12 = hour % 12 || 12
+    return `${hour12}:${minutes} ${period}`
+  }
+
+  const exportToExcel = () => {
+    if (filteredRecords.length === 0) {
+      toast.error("No data to export")
+      return
+    }
+
+    try {
+      // Prepare data for export
+      const exportData = filteredRecords.map((record, index) => ({
+        "Sr. No.": index + 1,
+        "Date": formatDate(record.date),
+        "Time": formatTime(record.date),
+        "Shift": record.shift,
+        "EOD in Shift": record.eodInShift || "-",
+        "Testing Hours From": formatTimeTo12Hour(record.testingHrsFrom),
+        "Testing Hours To": formatTimeTo12Hour(record.testingHrsTo),
+        "Testing Progressive Hours": record.testingProgressiveHrs || "-",
+        "Load Hours From": formatTimeTo12Hour(record.loadHrsFrom),
+        "Load Hours To": formatTimeTo12Hour(record.loadHrsTo),
+        "Load Progressive Hours": record.loadProgressiveHrs || "-",
+        "Hours Meter Reading": record.hrsMeterReading || "-",
+        "Oil Level in Diesel Tank": record.oilLevelInDieselTank || "-",
+        "Lube Oil Level in Engine": record.lubeOilLevelInEngine || "-",
+        "Lube Oil Pressure": record.oilPressure || "-",
+        "Oil Stock in Store": record.oilStockInStore || "-",
+        "Lube Oil Stock in Store": record.lubeOilStockInStore || "-",
+        "Oil Filled (Liters)": record.oilFilledInLiters || "-",
+        "Battery Condition": record.batteryCondition || "-",
+        "Oil Temperature": record.oilTemperature || "-",
+        "On Duty Staff": record.onDutyStaff || "-",
+        "Staff Signature": record.digitalSignatureDutyStaff || "-",
+        "EOD/AE Signature": record.digitalSignatureEodAe || "Pending",
+        "Signed At": record.signedAt ? new Date(record.signedAt).toLocaleString() : "-",
+        "Remarks": record.remarks || "-",
+      }))
+
+      // Create workbook and worksheet
+      const ws = XLSX.utils.json_to_sheet(exportData)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "DG Operations")
+
+      // Auto-size columns
+      const max_width = exportData.reduce((w: any, r: any) => {
+        return Object.keys(r).map(key => {
+          const cellValue = r[key]?.toString() || ""
+          return Math.max(w[key] || 10, cellValue.length)
+        })
+      }, {})
+
+      ws['!cols'] = Object.keys(exportData[0] || {}).map((key, i) => ({
+        wch: Math.min(max_width[key] || 10, 50)
+      }))
+
+      // Generate file name with date range
+      let fileName = "DG_Operations_Export.xlsx"
+      if (fromDate && toDate) {
+        fileName = `DG_Operations_${fromDate}_to_${toDate}.xlsx`
+      } else if (fromDate) {
+        fileName = `DG_Operations_from_${fromDate}.xlsx`
+      } else if (toDate) {
+        fileName = `DG_Operations_to_${toDate}.xlsx`
+      }
+
+      // Export file
+      XLSX.writeFile(wb, fileName)
+      toast.success("Excel file exported successfully!")
+    } catch (error) {
+      console.error("Export error:", error)
+      toast.error("Failed to export data")
+    }
+  }
+
   // Group records by date
   const groupedRecords = filteredRecords.reduce((acc, record) => {
     const date = formatDate(record.date)
@@ -127,7 +243,7 @@ export default function RecordsPage() {
     return <div>Loading...</div>
   }
 
-  const canSign = user && (user.role === "EOD" || user.role === "AE")
+  const canSign = user && (user.role === "EOD" || user.role === "AE" || user.role === "SEA" || user.role === "EA" || user.role === "TA")
 
   return (
     <div className="space-y-6">
@@ -178,14 +294,24 @@ export default function RecordsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <Label htmlFor="filterDate" className="text-xs md:text-sm">Filter by Date</Label>
+              <Label htmlFor="fromDate" className="text-xs md:text-sm">From Date</Label>
               <Input
-                id="filterDate"
+                id="fromDate"
                 type="date"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="text-xs md:text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="toDate" className="text-xs md:text-sm">To Date</Label>
+              <Input
+                id="toDate"
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
                 className="text-xs md:text-sm"
               />
             </div>
@@ -207,7 +333,8 @@ export default function RecordsPage() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setFilterDate("")
+                  setFromDate("")
+                  setToDate("")
                   setFilterShift("")
                 }}
                 className="w-full text-xs md:text-sm"
@@ -218,6 +345,34 @@ export default function RecordsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Export Button - Show when date range is selected */}
+      {(fromDate || toDate) && filteredRecords.length > 0 && (
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="pt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <p className="text-sm md:text-base font-medium text-green-900">
+                {fromDate && toDate 
+                  ? `Export records from ${fromDate} to ${toDate}`
+                  : fromDate 
+                    ? `Export records from ${fromDate} onwards`
+                    : `Export records up to ${toDate}`
+                }
+              </p>
+              <p className="text-xs md:text-sm text-green-700 mt-1">
+                {filteredRecords.length} record(s) ready to export
+              </p>
+            </div>
+            <Button
+              onClick={exportToExcel}
+              className="w-full md:w-auto bg-green-600 hover:bg-green-700"
+            >
+              <FileDown className="h-4 w-4 mr-2" />
+              Export to Excel
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Records Summary */}
       <div className="grid grid-cols-3 gap-2 md:gap-4">
@@ -293,7 +448,6 @@ export default function RecordsPage() {
                             <th className="px-2 md:px-4 py-2 text-left font-semibold">Time</th>
                             <th className="px-2 md:px-4 py-2 text-left font-semibold">Shift</th>
                             <th className="px-2 md:px-4 py-2 text-left font-semibold">Entry #</th>
-                            <th className="px-2 md:px-4 py-2 text-left font-semibold">Staff</th>
                             <th className="px-2 md:px-4 py-2 text-left font-semibold">Staff Sign</th>
                             <th className="px-2 md:px-4 py-2 text-left font-semibold">EOD/AE Sign</th>
                             <th className="px-2 md:px-4 py-2 text-left font-semibold">Actions</th>
@@ -307,7 +461,6 @@ export default function RecordsPage() {
                               <Badge variant="outline" className="text-xs">{record.shift}</Badge>
                             </td>
                             <td className="px-2 md:px-4 py-2 md:py-3 font-mono">#{index + 1}</td>
-                            <td className="px-2 md:px-4 py-2 md:py-3 max-w-[80px] md:max-w-none truncate" title={record.onDutyStaff || "-"}>{record.onDutyStaff || "-"}</td>
                             <td className="px-2 md:px-4 py-2 md:py-3">
                               <div className="flex items-center gap-1 md:gap-2">
                                 <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-green-500 flex-shrink-0" />

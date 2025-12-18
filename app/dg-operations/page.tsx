@@ -28,8 +28,6 @@ export default function DGOperationsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [eodUsers, setEodUsers] = useState<EODUser[]>([])
   const [showCustomEod, setShowCustomEod] = useState(false)
-  const [allUsers, setAllUsers] = useState<EODUser[]>([])
-  const [showCustomOnDuty, setShowCustomOnDuty] = useState(false)
   
   // Helper function to get current browser time in datetime-local format
   const getCurrentBrowserTime = () => {
@@ -89,8 +87,6 @@ export default function DGOperationsPage() {
     batteryCondition: "",
     oilPressure: "",
     oilTemperature: "",
-    onDutyStaff: "",
-    customOnDutyStaff: "",
     remarks: "",
   })
 
@@ -109,25 +105,6 @@ export default function DGOperationsPage() {
     }
 
     fetchEodUsers()
-  }, [])
-
-  // Fetch all users for on duty staff dropdown
-  useEffect(() => {
-    const fetchAllUsers = async () => {
-      try {
-        const res = await fetch("/api/users")
-        if (res.ok) {
-          const result = await res.json()
-          if (result.success && result.data) {
-            setAllUsers(result.data)
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching all users:", error)
-      }
-    }
-
-    fetchAllUsers()
   }, [])
 
   // Auto-fill form for testing (controlled by testing config)
@@ -156,7 +133,6 @@ export default function DGOperationsPage() {
           batteryCondition: 'Good',
           oilPressure: '45',
           oilTemperature: '85',
-          onDutyStaff: 'Test Operator',
           remarks: 'Auto-filled test data'
         }))
         
@@ -190,15 +166,6 @@ export default function DGOperationsPage() {
         setShowCustomEod(false)
         setFormData({ ...formData, [name]: value, customEod: "" })
       }
-    } else if (name === "onDutyStaff") {
-      // Handle On Duty Staff selection
-      if (value === "custom") {
-        setShowCustomOnDuty(true)
-        setFormData({ ...formData, [name]: "", customOnDutyStaff: "" })
-      } else {
-        setShowCustomOnDuty(false)
-        setFormData({ ...formData, [name]: value, customOnDutyStaff: "" })
-      }
     } else {
       setFormData({ ...formData, [name]: value })
     }
@@ -213,11 +180,6 @@ export default function DGOperationsPage() {
       const finalEodInShift = showCustomEod && formData.customEod 
         ? formData.customEod 
         : formData.eodInShift
-
-      // Use custom On Duty Staff if provided, otherwise use selected value
-      const finalOnDutyStaff = showCustomOnDuty && formData.customOnDutyStaff
-        ? formData.customOnDutyStaff
-        : formData.onDutyStaff
 
       // Calculate testing progressive hours from time range
       const calculatedTestingProgressiveHrs = calculateHoursDifference(
@@ -238,7 +200,6 @@ export default function DGOperationsPage() {
           ...formData,
           date: new Date(formData.date),
           eodInShift: finalEodInShift || undefined,
-          onDutyStaff: finalOnDutyStaff || undefined,
           testingProgressiveHrs: calculatedTestingProgressiveHrs || undefined,
           loadProgressiveHrs: calculatedLoadProgressiveHrs || undefined,
           hrsMeterReading: formData.hrsMeterReading ? parseFloat(formData.hrsMeterReading) : undefined,
@@ -261,7 +222,6 @@ export default function DGOperationsPage() {
       
       // Reset form for next entry
       setShowCustomEod(false)
-      setShowCustomOnDuty(false)
       setFormData({
         date: getCurrentBrowserTime(),
         shift: "",
@@ -282,8 +242,6 @@ export default function DGOperationsPage() {
         batteryCondition: "",
         oilPressure: "",
         oilTemperature: "",
-        onDutyStaff: "",
-        customOnDutyStaff: "",
         remarks: "",
       })
     } catch (error) {
@@ -552,37 +510,6 @@ export default function DGOperationsPage() {
                   onChange={handleChange}
                   className="text-xs md:text-sm"
                 />
-              </div>
-              <div className={showCustomOnDuty ? "md:col-span-2" : ""}>
-                <Label htmlFor="onDutyStaff" className="text-xs md:text-sm">On Duty Staff</Label>
-                <div className="flex flex-col md:flex-row gap-2">
-                  <Select
-                    id="onDutyStaff"
-                    name="onDutyStaff"
-                    value={formData.onDutyStaff}
-                    onChange={handleChange}
-                    className={`text-xs md:text-sm ${showCustomOnDuty ? "md:flex-1" : ""}`}
-                  >
-                    <option value="">Select Staff</option>
-                    {allUsers.map((user) => (
-                      <option key={user.id} value={user.name}>
-                        {user.name}
-                      </option>
-                    ))}
-                    <option value="custom">+ Add Custom Staff</option>
-                  </Select>
-                  {showCustomOnDuty && (
-                    <Input
-                      id="customOnDutyStaff"
-                      name="customOnDutyStaff"
-                      type="text"
-                      placeholder="Enter staff name"
-                      value={formData.customOnDutyStaff}
-                      onChange={handleChange}
-                      className="text-xs md:text-sm md:flex-1"
-                    />
-                  )}
-                </div>
               </div>
             </div>
 

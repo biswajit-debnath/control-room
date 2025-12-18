@@ -136,7 +136,6 @@ export default function DGOperationsDetailPage() {
         "Oil Filled (Liters)": record.oilFilledInLiters || "-",
         "Battery Condition": record.batteryCondition || "-",
         "Oil Temperature": record.oilTemperature || "-",
-        "On Duty Staff": record.onDutyStaff || "-",
         "Staff Signature": record.digitalSignatureDutyStaff || "-",
         "EOD/AE Signature": record.digitalSignatureEodAe || "Pending",
         "Signed At": record.signedAt ? new Date(record.signedAt).toLocaleString() : "-",
@@ -183,7 +182,7 @@ export default function DGOperationsDetailPage() {
     )
   }
 
-  const canSign = user && (user.role === "EOD" || user.role === "AE")
+  const canSign = user && (user.role === "EOD" || user.role === "AE" || user.role === "SEA" || user.role === "EA" || user.role === "TA")
 
   // Helper function to convert 24-hour time to 12-hour format with AM/PM
   const formatTimeTo12Hour = (time24: string | null | undefined): string => {
@@ -267,7 +266,6 @@ export default function DGOperationsDetailPage() {
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Oil Filled</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Battery</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Temp.</th>
-                  <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Staff</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Staff Sign</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap">Remarks</th>
                   <th className="px-2 md:px-4 py-3 text-left font-semibold text-xs whitespace-nowrap sticky right-0 bg-gradient-to-r from-gray-50 to-gray-100 z-10 shadow-sm">EOD/AE Sign</th>
@@ -294,7 +292,6 @@ export default function DGOperationsDetailPage() {
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilFilledInLiters || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.batteryCondition || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.oilTemperature || "-"}</td>
-                    <td className="px-2 md:px-4 py-2 md:py-3 border-b text-xs whitespace-nowrap">{record.onDutyStaff || "-"}</td>
                     <td className="px-2 md:px-4 py-2 md:py-3 border-b">
                       <div className="flex items-center gap-1 md:gap-2">
                         <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-green-500 flex-shrink-0" />

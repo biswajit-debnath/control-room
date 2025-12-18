@@ -9,9 +9,14 @@ async function main() {
 
   // Create test users
   /* Roles:
-    AE - Admin Executive
-    EOD - End of Day Staff
-    TA - Technical Assistant
+    TA      // Technical Assistant
+    EOD     // Engineer on Duty
+    AE      // Assistant Engineer
+    SEA     // Senior Executive Assistant
+    EA      // Executive Assistant
+    SR_TECH // Senior Technician
+    TECH    // Technician
+    HELPER  // Helper
   */
   const users = [
     {
@@ -44,6 +49,25 @@ async function main() {
       name: "Nikhil Sharma",
       role: "TA",
     },
+    {
+      phoneNumber: "8133937566",
+      password: "password123",
+      name: "Siddheswar Boro",
+      role: "SR_TECH",
+    },
+    {
+      phoneNumber: "9436352401",
+      password: "password123",
+      name: "Vijay Kumar Varma",
+      role: "TECH",
+    },
+    {
+      phoneNumber: "9706256686",
+      password: "password123",
+      name: "Harmohan Barman",
+      role: "HELPER",
+    }
+    
   ]
 
   for (const userData of users) {

@@ -30,6 +30,9 @@ enum Role {
   AE
   SEA
   EA
+  SR_TECH
+  TECH
+  HELPER
 }
 
 // Activity tracking for audit trail
